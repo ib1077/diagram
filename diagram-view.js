@@ -3,7 +3,7 @@
 'use strict';
 const {COLORS,SERVICE,validate,clock,ink,planLabels,poseLabel}=window.ChizuDiagram;
 let nextId=0;
-function createViewer({svg,data:initialData,onSelect=()=>{},onViewChange=()=>{},width=0,height=0,printMode=false,labelOverrides=window.CHIZU_DIAGRAM_CONFIG?.labelOverrides||{}}){
+function createViewer({svg,data:initialData,onSelect=()=>{},onViewChange=()=>{},width=0,height=0,printMode=false,forceGridMinutes=0,labelOverrides=window.CHIZU_DIAGRAM_CONFIG?.labelOverrides||{}}){
  let data=validate(initialData),stationMap=new Map(data.stations.map(s=>[s.id,s]));
  let labelPlans=planLabels(data,{printMode,overrides:labelOverrides[printMode?'print':'screen']});
  let selected='',start=36000,span=28800,filters={up:true,down:true};
@@ -34,7 +34,7 @@ function draw(){
  const x=s=>left+(s-start)/(end-start)*pw,y=k=>top+(k-lo)/(hi-lo)*ph;
  el('title',{},`${data.title} ${clock(start)}–${clock(end)}。上郡側を上、智頭側を下に表示。`);
  const defs=el('defs');const cp=el('clipPath',{id:clipId},undefined,defs);el('rect',{x:left,y:top-2,width:pw,height:ph+4},undefined,cp);
- const gridMinutes=printMode?10:(120*pw/span>=8?2:10),step=gridMinutes*60;
+ const gridMinutes=forceGridMinutes||(printMode?10:(120*pw/span>=8?2:10)),step=gridMinutes*60;
  const labelStep=(printMode&&span<21600?[600,1800,3600,7200]:[3600,7200,10800,21600]).find(s=>s*pw/span>=24)||21600;
  for(let s=Math.ceil(start/step)*step;s<=end+0.0001;s+=step){const hourly=s%3600===0,ten=s%600===0;el('line',{x1:x(s),y1:top,x2:x(s),y2:h-bottom,class:hourly?'hour-line':ten?(gridMinutes===2?'detail-ten-line':'ten-line'):'two-line','data-grid-seconds':s});}
  for(let s=Math.ceil(start/labelStep)*labelStep;s<=end;s+=labelStep){const label=s%3600===0?String(s/3600):clock(s);for(const [side,ay] of [['top',14],['bottom',h-7]])el('text',{x:x(s),y:ay,'text-anchor':'middle',class:'axis-label','data-axis':side,'data-hour':s/3600},label);}

@@ -15,3 +15,18 @@ body.fallback-landscape .app-shell{position:fixed;left:100vw;top:0;width:100dvh;
 /* Planned timetable miniature */
 .point-split .chart-wrap{bottom:50%}.point-pane{position:absolute;left:0;right:0;top:50%;bottom:0;overflow:hidden;border-top:2px solid #88a5b3;color:#f2f7fa}.point-pane svg{display:block;width:100%;height:calc(100% - 43px)}.point-pane svg text{font-family:inherit}.point-note{position:absolute;z-index:1;top:5px;right:8px;font-size:10px;color:#dceaf0;background:#12283bb8;padding:3px 5px;border-radius:4px;pointer-events:none}.point-controls{height:42px;display:flex;align-items:center;gap:5px;padding:3px 8px;background:#1c3447}.point-controls button,.point-controls select{min-height:30px;border:1px solid #678396;border-radius:5px;background:#28485d;color:white;font-size:11px;padding:3px 5px;white-space:nowrap}.point-controls strong{min-width:48px;font-size:13px;font-variant-numeric:tabular-nums}.point-controls input{flex:1;min-width:20px;accent-color:#f4d67e}
 @media(max-height:440px){.point-controls{height:35px}.point-pane svg{height:calc(100% - 35px)}.point-note{font-size:9px}}
+
+/* Compact quarter-height miniature, including rotated phones. */
+body.point-split .chart-wrap,body.point-split.fallback-landscape .chart-wrap{bottom:25%}
+body.point-split .point-pane{top:75%}
+.point-pane svg{height:calc(100% - 31px)}.point-controls{height:30px}.point-controls button,.point-controls select{min-height:24px;padding:2px 5px;font-size:10px}.point-note{font-size:8px;top:2px;padding:1px 4px}
+.print-sheet.wide{max-width:1600px;aspect-ratio:auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto;gap:12px;background:transparent}
+.print-sheet.wide .print-diagram{background:white;aspect-ratio:287/200;border:0;padding:0;overflow:hidden}
+.print-sheet.wide.paper-a3 .print-diagram{aspect-ratio:410/287}
+@media print{
+ #print-sheet.wide{display:block;width:var(--wide-width);height:auto;gap:0;break-inside:auto}
+ #print-sheet.wide .print-diagram{display:block;width:var(--wide-width);height:var(--wide-height);aspect-ratio:auto;break-inside:avoid;page-break-inside:avoid;border:0;padding:0;margin:0}
+ #print-sheet.wide .print-diagram+.print-diagram{break-before:page;page-break-before:always}
+}
+
+.print-sheet.wide .two-line{stroke:#cbd3d0;stroke-width:.65}

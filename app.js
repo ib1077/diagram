@@ -57,19 +57,31 @@ function printSettings(report=true){
  else if(!Number.isFinite(end)||end<=start){invalid='print-end';message='開始より後、24:00までの時刻を入力してください。'}
  else if(mode==='split'&&(!Number.isFinite(split)||split<=start||split>=end)){invalid='print-split';message='開始と終了の間の時刻を入力してください。'}
  if(invalid){$(invalid).setCustomValidity(message);if(report)$(invalid).reportValidity();return null}
- return {mode,start,end,split};
+ return {mode,start,end,split,paper:$('print-paper').value};
 }
 let lastPrintSettings={mode:'repeat',start:18000,end:82800,split:50400};
 function preparePrint(settings=lastPrintSettings){
- lastPrintSettings=settings;clearPrint();const {mode,start,end,split}=settings;
+ lastPrintSettings=settings;clearPrint();const {mode,start,end,split,paper='A4'}=settings,wide=mode==='wide';
+ const sheet=$('print-sheet');sheet.classList.toggle('single',mode==='single');sheet.classList.toggle('wide',wide);sheet.classList.toggle('paper-a3',wide&&paper==='A3');
+ $('print-chart-2').closest('.print-diagram').hidden=mode==='single';
+ let pageStyle=$('print-page-style');if(!pageStyle){pageStyle=document.createElement('style');pageStyle.id='print-page-style';document.head.append(pageStyle)}
+ pageStyle.textContent=`@page{size:${wide?paper:'A4'} landscape;margin:5mm}`;
+ sheet.style.setProperty('--wide-width',paper==='A3'?'410mm':'287mm');sheet.style.setProperty('--wide-height',paper==='A3'?'287mm':'200mm');
+ $('print-summary').textContent=(wide?paper:'A4')+'横・'+({repeat:'同じ範囲を上下2枚',split:'時間帯を上下に分割',single:'指定範囲を1枚',wide:'左右2枚につなげる・2分目盛（余白を切って接合）'})[mode];
+ if(wide){
+  // Draw one continuous diagram, then crop its exact left/right halves.
+  const full=document.createElementNS('http://www.w3.org/2000/svg','svg'),width=2400,height=paper==='A3'?840:836.237;
+  const v=createViewer({svg:full,data,width,height,printMode:true,forceGridMinutes:2});v.setRange(start,end-start);v.draw();
+  for(let i=0;i<2;i++){const svg=$('print-chart-'+(i+1));svg.replaceChildren(...[...full.childNodes].map(n=>n.cloneNode(true)));svg.setAttribute('viewBox',`${i*1200} 0 1200 ${height}`);svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-label',`大きく印刷 ${i?'右':'左'}ページ`);}
+  v.destroy();return;
+ }
  const ranges=mode==='single'?[[start,end]]:mode==='split'?[[start,split],[split,end]]:[[start,end],[start,end]];
- $('print-sheet').classList.toggle('single',mode==='single');$('print-chart-2').closest('.print-diagram').hidden=mode==='single';
- $('print-summary').textContent='A4横・'+({repeat:'同じ範囲を上下2枚',split:'時間帯を上下に分割',single:'指定範囲を1枚'})[mode];
  for(let i=0;i<ranges.length;i++){
-  const [a,b]=ranges[i],svg=$('print-chart-'+(i+1));svg.setAttribute('aria-label','印刷用ダイヤ '+clock(a)+'–'+clock(b));
+  const [a,b]=ranges[i],svg=$('print-chart-'+(i+1));svg.setAttribute('aria-label','印刷用ダイヤ '+clock(a)+'–'+clock(b));svg.removeAttribute('preserveAspectRatio');
   const v=createViewer({svg,data,width:1200,height:mode==='single'?820:400,printMode:true});v.setRange(a,b-a);v.draw();printViewers.push(v);
  }
 }
+
 updateMetadata();viewer=createViewer({svg:$('chart'),data,onSelect:choose,onViewChange:viewChanged});
 gestures=attachGestures({surface:$('chart-wrap'),viewer,onTap:p=>{const id=viewer.pick(p),selected=viewer.getState().selected;choose(selected&&id!==selected?'':id)}});
 $('launch').onclick=enter;$('home').onclick=home;
@@ -85,7 +97,7 @@ $('menu-open').onclick=()=>{$('settings').showModal()};$('menu-close').onclick=(
 $('import-data').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>10000000)throw Error('ファイルが大きすぎます。');const next=validate(JSON.parse(await f.text()));changeData(next);try{localStorage.setItem(KEY,JSON.stringify(data));$('import-message').textContent='データを読み込み、この端末に保存しました。'}catch{$('import-message').textContent='読み込みました。この環境では保存できないため、次回は再度開いてください。'}}catch(err){$('import-message').textContent='読み込みできません：'+err.message}e.target.value=''};
 $('reset-data').onclick=()=>{try{localStorage.removeItem(KEY)}catch{}changeData(bundled);$('import-message').textContent='同梱データへ戻しました。'};
 $('export-data').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='diagram-data.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
-$('print-mode').onchange=()=>{$('print-split-field').hidden=$('print-mode').value!=='split'};
+$('print-mode').onchange=()=>{$('print-split-field').hidden=$('print-mode').value!=='split';$('print-paper-field').hidden=$('print-mode').value!=='wide'};
 $('print-current').onclick=()=>{const s=viewer.getState();$('print-start').value=clock(s.start);$('print-end').value=clock(s.end);$('print-split').value=clock((s.start+s.end)/2)};
 $('print-preview').onclick=()=>{const settings=printSettings();if(!settings)return;$('settings').close();$('print-preview-screen').hidden=false;preparePrint(settings);$('print-back').focus()};
 $('print-edit').onclick=()=>{$('print-preview-screen').hidden=true;$('settings').showModal()};
