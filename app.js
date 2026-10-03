@@ -8,7 +8,7 @@ try{const saved=localStorage.getItem(KEY);if(saved)data=validate(JSON.parse(save
 function option(value,text){const o=document.createElement('option');o.value=value;o.textContent=text;return o}
 function edition(){return data.edition||(data===bundled?config.edition:'読込DATA')}
 function updateMetadata(){
- $('edition').textContent=edition();document.querySelector('.version').textContent='ver.'+config.version;$('update-version').textContent='ver.'+config.version;
+ $('edition').textContent=edition();$('update-version').textContent='ver.'+config.version;
  $('source-info').textContent=`${data.source?.file||'読み込みデータ'} ／ ${data.trains.length}列車・${data.stations.length}地点`;
  $('train').replaceChildren(option('','選択なし'));for(const t of data.trains)$('train').append(option(t.id,t.id));
  $('detail-panel').hidden=true;$('up').checked=true;$('down').checked=true;

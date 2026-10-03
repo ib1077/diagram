@@ -1,5 +1,5 @@
 const PREFIX='chizu-diagram-'+encodeURIComponent(self.registration.scope)+'-';
-const CACHE=PREFIX+'b0d1823f861e8502';
+const CACHE=PREFIX+'33647659344a2b9e';
 const ASSETS=["./", "./index.html", "./styles.css", "./ui-config.js", "./diagram-core.js", "./label-layout.js", "./diagram-view.js", "./pan-zoom.js", "./app.js", "./point-view.js", "./data.js", "./register.js", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  // Write only this release's cache; a failed download never touches older releases.
