@@ -30,3 +30,5 @@ body.point-split .point-pane{top:75%}
 }
 
 .print-sheet.wide .two-line{stroke:#cbd3d0;stroke-width:.65}
+
+.home-update{margin-top:20px;border-top:1px solid var(--line);padding-top:12px;font-size:10px;color:var(--muted)}.home-update button{border:0;background:transparent;color:var(--muted);font-size:11px;min-height:30px;padding:4px 6px 4px 0}.home-update span{font-variant-numeric:tabular-nums}.home-update p{font-size:11px;line-height:1.5;margin:4px 0 0}.home-update p:empty{display:none}
