@@ -2,7 +2,7 @@
 (() => {
 'use strict';
 const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
-let data,seconds=18000,playing=false,last=0,frame=0,deer=null,nextDeer=0,deerEnabled=true,split=false;
+let data,seconds=18000,playing=false,last=0,frame=0,split=false;
 const el=(parent,tag,attrs,text)=>{const n=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;parent.append(n);return n};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const label=s=>String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor(s%3600/60)).padStart(2,'0');
@@ -29,18 +29,15 @@ function draw(){if(!split)return;const svg=$('point-track');svg.replaceChildren(
   for(const wx of [-3.5,2])el(g,'rect',{x:wx,y:-3,width:3.2,height:2.6,rx:.5,fill:hour>=18?'#f5dea2':'#7694a7'});
   if(t.service!=='ordinary')el(svg,'text',{x,y:y+(t.direction==='down'?-12:-20),'text-anchor':'middle',fill:c,'font-size':9,stroke:'#192a39','stroke-width':2,'paint-order':'stroke'},t.id);
  }
- if(deer&&performance.now()<deer.until)el(svg,'text',{x:px(deer.km),y:55,'text-anchor':'middle','font-size':17},'🦌');else deer=null;
 }
 function tick(now){if(playing){if(last)seconds+=Math.min((now-last)/1000,1)*Number($('point-rate').value);last=now;
  if(seconds>=82800){seconds=82800;playing=false;$('point-play').textContent='▶ 再生'}
- if(deerEnabled&&seconds>=72000&&seconds>=nextDeer&&seconds<82800){if(Math.random()<.35)deer={km:3+Math.random()*50,until:now+2800};nextDeer=seconds+5400+Math.random()*5400}
  $('point-seek').value=seconds;draw();}
  frame=requestAnimationFrame(tick)}
 function show(on){split=on;$('point-pane').hidden=!on;document.body.classList.toggle('point-split',on);$('point-mode').setAttribute('aria-pressed',String(on));$('point-mode').querySelector('.side-label').textContent=on?'全画面':'点P';if(on)draw();requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))}
 window.ChizuPoint={setData(next){data=next;draw()},stop(){playing=false;last=0;$('point-play').textContent='▶ 再生'},hide(){show(false)}};
 $('point-mode').onclick=()=>show(!split);
 $('point-play').onclick=()=>{if(seconds>=82800)seconds=18000;playing=!playing;last=0;$('point-play').textContent=playing?'⏸ 停止':'▶ 再生';draw()};
-$('point-seek').oninput=e=>{seconds=Number(e.target.value);deer=null;draw()};
-$('point-deer').onclick=()=>{deerEnabled=!deerEnabled;deer=null;$('point-deer').textContent=deerEnabled?'🦌 ON':'🦌 OFF';draw()};
-nextDeer=72000+Math.random()*3600;frame=requestAnimationFrame(tick);
+$('point-seek').oninput=e=>{seconds=Number(e.target.value);draw()};
+frame=requestAnimationFrame(tick);
 })();
