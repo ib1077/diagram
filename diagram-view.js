@@ -41,7 +41,7 @@ function draw(){
  // Keep true distance coordinates. Small station-name collisions are offset only in the label margin.
  let lastLabel=-100;
  for(const s of [...data.stations].sort((a,b)=>a.km-b.km)){
-  const sy=y(s.km);el('line',{x1:left,y1:sy,x2:w-right,y2:sy,class:'station-line',...(printMode&&(s.name==='佐用'||s.name==='大原')?{'stroke-width':2.2,stroke:'#59615e'}:{})});
+  const sy=y(s.km);el('line',{x1:left,y1:sy,x2:w-right,y2:sy,class:'station-line',...(printMode&&(s.name==='佐用'||s.name==='大原')?{style:'stroke:#252b29;stroke-width:3.2px'}:{})});
   const ly=Math.max(sy,lastLabel+12);lastLabel=ly;
   if(ly!==sy)el('line',{x1:left-5,y1:sy,x2:left-15,y2:ly,stroke:'#9caea8','stroke-width':.6});
   el('text',{x:left-8,y:ly+3,'text-anchor':'end',class:'station-label'},s.name);
