@@ -94,3 +94,7 @@ body.point-split .point-pane{top:75%}
   #print-sheet:not(.single):not(.wide){height:200mm}
 }
 
+
+/* Full-day single-sheet trial: reserve equal writing space above and below. */
+#print-sheet.compact-single{position:relative;display:block}
+#print-sheet.compact-single > .print-diagram:first-child{position:absolute;top:16.5%;left:0;width:100%;height:67%}

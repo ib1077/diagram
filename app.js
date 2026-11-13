@@ -62,7 +62,7 @@ function printSettings(report=true){
 let lastPrintSettings={mode:'repeat',start:18000,end:82800,split:50400};
 function preparePrint(settings=lastPrintSettings){
  lastPrintSettings=settings;clearPrint();const {mode,start,end,split,paper='A4'}=settings,wide=mode==='wide';
- const sheet=$('print-sheet');sheet.classList.toggle('single',mode==='single');sheet.classList.toggle('wide',wide);sheet.classList.toggle('paper-a3',wide&&paper==='A3');
+ const sheet=$('print-sheet');sheet.classList.toggle('single',mode==='single');sheet.classList.toggle('compact-single',mode==='single'&&start===18000&&end===82800);sheet.classList.toggle('wide',wide);sheet.classList.toggle('paper-a3',wide&&paper==='A3');
  $('print-chart-2').closest('.print-diagram').hidden=mode==='single';
  let pageStyle=$('print-page-style');if(!pageStyle){pageStyle=document.createElement('style');pageStyle.id='print-page-style';document.head.append(pageStyle)}
  pageStyle.textContent=`@page{size:${wide?paper:'A4'} landscape;margin:5mm}`;
@@ -77,8 +77,8 @@ function preparePrint(settings=lastPrintSettings){
  }
  const ranges=mode==='single'?[[start,end]]:mode==='split'?[[start,split],[split,end]]:[[start,end],[start,end]];
  for(let i=0;i<ranges.length;i++){
-  const [a,b]=ranges[i],svg=$('print-chart-'+(i+1));svg.setAttribute('aria-label','印刷用ダイヤ '+clock(a)+'–'+clock(b));svg.removeAttribute('preserveAspectRatio');
-  const v=createViewer({svg,data,width:1200,height:mode==='single'?820:400,printMode:true});v.setRange(a,b-a);v.draw();printViewers.push(v);
+  const [a,b]=ranges[i],svg=$('print-chart-'+(i+1));svg.setAttribute('aria-label','印刷用ダイヤ '+clock(a)+'–'+clock(b));svg.removeAttribute('preserveAspectRatio');if(mode==='single'&&start===18000&&end===82800)svg.setAttribute('preserveAspectRatio','none');
+  const v=createViewer({svg,data,width:1200,height:mode==='single'?820:400,printMode:true,stationLineWidth:mode==='single'?2.0:1.8});v.setRange(a,b-a);v.draw();printViewers.push(v);
  }
 }
 
