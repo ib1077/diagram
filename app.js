@@ -62,12 +62,12 @@ function printSettings(report=true){
 let lastPrintSettings={mode:'repeat',start:18000,end:82800,split:50400};
 function preparePrint(settings=lastPrintSettings){
  lastPrintSettings=settings;clearPrint();const {mode,start,end,split,paper='A4'}=settings,wide=mode==='wide';
- const sheet=$('print-sheet');sheet.classList.toggle('single',mode==='single');sheet.classList.toggle('compact-single',mode==='single'&&start===18000&&end===82800);sheet.classList.toggle('wide',wide);sheet.classList.toggle('paper-a3',wide&&paper==='A3');
- $('print-chart-2').closest('.print-diagram').hidden=mode==='single';
+ const sheet=$('print-sheet');sheet.classList.toggle('single',mode==='single'||mode==='memo');sheet.classList.toggle('memo',mode==='memo');sheet.classList.toggle('compact-single',mode==='single'&&start===18000&&end===82800);sheet.classList.toggle('wide',wide);sheet.classList.toggle('paper-a3',wide&&paper==='A3');
+ $('print-chart-2').closest('.print-diagram').hidden=mode==='single'||mode==='memo';
  let pageStyle=$('print-page-style');if(!pageStyle){pageStyle=document.createElement('style');pageStyle.id='print-page-style';document.head.append(pageStyle)}
  pageStyle.textContent=`@page{size:${wide?paper:'A4'} landscape;margin:5mm}`;
  sheet.style.setProperty('--wide-width',paper==='A3'?'410mm':'287mm');sheet.style.setProperty('--wide-height',paper==='A3'?'287mm':'200mm');
- $('print-summary').textContent=(wide?paper:'A4')+'横・'+({repeat:'同じ範囲を上下2枚',split:'時間帯を上下に分割',single:'指定範囲を1枚',wide:'左右2枚につなげる・2分目盛（余白を切って接合）'})[mode];
+ $('print-summary').textContent=(wide?paper:'A4')+'横・'+({repeat:'同じ範囲を上下2枚',split:'時間帯を上下に分割',single:'指定範囲を1枚',memo:'中央1段＋上下メモ欄',wide:'左右2枚につなげる・2分目盛（余白を切って接合）'})[mode];
  if(wide){
   // Draw one continuous diagram, then crop its exact left/right halves.
   const full=document.createElementNS('http://www.w3.org/2000/svg','svg'),width=2400,height=paper==='A3'?840:836.237;
@@ -75,10 +75,10 @@ function preparePrint(settings=lastPrintSettings){
   for(let i=0;i<2;i++){const svg=$('print-chart-'+(i+1));svg.replaceChildren(...[...full.childNodes].map(n=>n.cloneNode(true)));svg.setAttribute('viewBox',`${i*1200} 0 1200 ${height}`);svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-label',`大きく印刷 ${i?'右':'左'}ページ`);}
   v.destroy();return;
  }
- const ranges=mode==='single'?[[start,end]]:mode==='split'?[[start,split],[split,end]]:[[start,end],[start,end]];
+ const ranges=(mode==='single'||mode==='memo')?[[start,end]]:mode==='split'?[[start,split],[split,end]]:[[start,end],[start,end]];
  for(let i=0;i<ranges.length;i++){
   const [a,b]=ranges[i],svg=$('print-chart-'+(i+1));svg.setAttribute('aria-label','印刷用ダイヤ '+clock(a)+'–'+clock(b));svg.removeAttribute('preserveAspectRatio');if(mode==='single'&&start===18000&&end===82800)svg.setAttribute('preserveAspectRatio','none');
-  const v=createViewer({svg,data,width:1200,height:mode==='single'?820:400,printMode:true,stationLineWidth:mode==='single'?2.0:1.8});v.setRange(a,b-a);v.draw();printViewers.push(v);
+  const v=createViewer({svg,data,width:1200,height:mode==='single'?820:400,printMode:true});v.setRange(a,b-a);v.draw();printViewers.push(v);
  }
 }
 

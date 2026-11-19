@@ -3,7 +3,7 @@
 'use strict';
 const {COLORS,SERVICE,validate,clock,ink,planLabels,poseLabel}=window.ChizuDiagram;
 let nextId=0;
-function createViewer({svg,data:initialData,onSelect=()=>{},onViewChange=()=>{},width=0,height=0,printMode=false,stationLineWidth=2.0,forceGridMinutes=0,labelOverrides=window.CHIZU_DIAGRAM_CONFIG?.labelOverrides||{}}){
+function createViewer({svg,data:initialData,onSelect=()=>{},onViewChange=()=>{},width=0,height=0,printMode=false,forceGridMinutes=0,labelOverrides=window.CHIZU_DIAGRAM_CONFIG?.labelOverrides||{}}){
  let data=validate(initialData),stationMap=new Map(data.stations.map(s=>[s.id,s]));
  let labelPlans=planLabels(data,{printMode,overrides:labelOverrides[printMode?'print':'screen']});
  let selected='',start=36000,span=28800,filters={up:true,down:true};
@@ -41,7 +41,7 @@ function draw(){
  // Keep true distance coordinates. Small station-name collisions are offset only in the label margin.
  let lastLabel=-100;
  for(const s of [...data.stations].sort((a,b)=>a.km-b.km)){
-  const sy=y(s.km);el('line',{x1:left,y1:sy,x2:w-right,y2:sy,class:'station-line',...(printMode&&(s.name==='佐用'||s.name==='大原')?{style:`stroke:#252b29;stroke-width:${stationLineWidth}px`}:{})});
+  const sy=y(s.km);el('line',{x1:left,y1:sy,x2:w-right,y2:sy,class:'station-line',...(printMode&&(s.name==='佐用'||s.name==='大原')?{style:`stroke:#252b29;stroke-width:1.5px`}:{})});
   const ly=Math.max(sy,lastLabel+12);lastLabel=ly;
   if(ly!==sy)el('line',{x1:left-5,y1:sy,x2:left-15,y2:ly,stroke:'#9caea8','stroke-width':.6});
   el('text',{x:left-8,y:ly+3,'text-anchor':'end',class:'station-label'},s.name);
